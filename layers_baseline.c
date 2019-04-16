@@ -80,9 +80,9 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
         int stride = l->stride;
         
-        int out_depth = l->output_depth
-        int out_height = l->output_height
-        int out_width = l->output_width
+        int out_depth = l->output_depth;
+        int out_height = l->output_height;
+        int out_width = l->output_width;
         
         for(int f = 0; f < out_depth; f++) {
             volume_t *filter = l->filters[f];
