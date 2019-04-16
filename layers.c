@@ -352,12 +352,12 @@ void fc_load(fc_layer_t *l, const char *filename) {
     
     volume_t **filters = l->filters;
     for(int i = 0; i < output_depth; i++) {
-        int *filter_weights = filters[i]->weights;
+        double *filter_weights = filters[i]->weights;
         for(int j = 0; j < num_inputs; j++) {
             fscanf(fin, "%lf", &(filter_weights[j]));
         }
     }
-    int *bias_weights = l->biases->weights;
+    double *bias_weights = l->biases->weights;
     for(int i = 0; i < output_depth; i++) {
         fscanf(fin, "%lf", &(bias_weights[i]));
     }
@@ -393,18 +393,18 @@ softmax_layer_t *make_softmax_layer(int input_width, int input_height, int input
 void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     
     int depth = l->output_depth;
-    double likelihoods[output_depth];
-    
-    int *in_weights = in->weights;
-    int *out_weights = out->weights;
+    double likelihoods[depth];
     
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
         
+        int *in_weights = in->weights;
+        int *out_weights = out->weights;
+        
         // Compute max activation (used to compute exponentials)
+        double amax = in_weights[0];
         for(int i = 1; i < depth; i++) {
-            double amax = in_weights[0];
             if (in_weights[i] > amax) {
                 amax = in_weights[i];
             }
