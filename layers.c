@@ -147,7 +147,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     assert(filters == l->output_depth);
     
     for(int f = 0; f < filters; f++) {
-        volume_t *f = filters[f];
+        volume_t f = filters[f];
         for (int x = 0; x < filter_width; x++) {
             for (int y = 0; y < filter_height; y++) {
                 for (int d = 0; d < depth; d++) {
@@ -187,9 +187,9 @@ relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth
 // Applies the Rectifier Linear Unit (ReLU) function to the input, which sets
 // output(x, y, d) to max(0.0, input(x, y, d)).
 void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    int in_width = in->width;
-    int in_height = in->height;
-    int in_depth = in->depth;
+    int in_width = input->width;
+    int in_height = input->height;
+    int in_depth = input->depth;
     
     for (int x = 0; x < in_width; x++) {
         for (int y = 0; y < in_height; y++) {
@@ -213,7 +213,6 @@ pool_layer_t *make_pool_layer(int input_width, int input_height, int input_depth
     
     l->pool_height = l->pool_width;
     l->stride = stride;
-    int stride = l->stride;
     l->pad = 0;
     int pad = l->pad;
     
@@ -399,8 +398,8 @@ void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, 
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
         
-        int in_weights = in->weights;
-        int out_weights = out->weights;
+        int *in_weights = in->weights;
+        int *out_weights = out->weights;
         
         // Compute max activation (used to compute exponentials)
         double amax = in_weights[0];
