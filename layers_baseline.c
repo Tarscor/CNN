@@ -79,13 +79,17 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         volume_t *out = outputs[i];
 
         int stride = l->stride;
-
-        for(int f = 0; f < l->output_depth; f++) {
+        
+        int out_depth = l->output_depth
+        int out_height = l->output_height
+        int out_width = l->output_width
+        
+        for(int f = 0; f < out_depth; f++) {
             volume_t *filter = l->filters[f];
             int y = -l->pad;
-            for(int out_y = 0; out_y < l->output_height; y += stride, out_y++) {
+            for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
-                for(int out_x = 0; out_x < l->output_width; x += stride, out_x++) {
+                for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
 
                     // Take sum of element-wise product
                     double sum = 0.0;
