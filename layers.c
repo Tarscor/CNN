@@ -399,8 +399,8 @@ void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, 
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
         
-        int[] in_weights = in->weights;
-        int[] out_weights = out->weights;
+        int in_weights = in->weights;
+        int out_weights = out->weights;
         
         // Compute max activation (used to compute exponentials)
         double amax = in_weights[0];
