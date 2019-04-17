@@ -127,16 +127,16 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 __m256i sum = _mm_set1_epi64(0.0);
                                 __m256i temp;
                                 for(int fd = 0; fd < filter_depth / 16 * 16; fd+=16) {
-                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)))
+                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
                                     sum = _mm_add_epi64(temp, sum);
 
-                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 4)))
+                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 4)));
                                     sum = _mm_add_epi64(temp, sum);
 
-                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 8)))
+                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 8)));
                                     sum = _mm_add_epi64(temp, sum);
 
-                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 12)))
+                                    temp = _mm_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 12)));
                                     sum = _mm_add_epi64(temp, sum);
                                     // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
                                     // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+1] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+1];
