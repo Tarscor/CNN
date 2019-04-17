@@ -118,19 +118,19 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
 
                     // Take sum of element-wise product
-                    long long double result = 0.0;
+                    long double result = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
                         for(int fx = 0; fx < filter_width; fx++) {
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                __m256d sum = _mm_set1_epi64(0.0);
+                                __m256d sum = _mm256_set1_pd(0.0);
                                 __m256d temp;
                                 for(int fd = 0; fd < filter_depth / 16 * 16; fd+=16) {
                                     temp = _mm256_loadu_pd((filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
-                                    sum = = _mm256_add_pd(temp, sum);
+                                    sum = _mm256_add_pd(temp, sum);
 
-                                    temp = _mm256_loadu_pd(filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 4)));
+                                    temp = _mm256_loadu_pd((filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 4)));
                                     sum = _mm256_add_pd(temp, sum);
 
                                     temp = _mm256_loadu_pd((filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 8)));
