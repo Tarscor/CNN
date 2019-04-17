@@ -124,10 +124,10 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
                                 for(int fd = 0; fd < filter_depth / 4 * 4; fd+=4) {
-                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] + in_weights[((in_width * in_y) + in_x) * in_depth + fd];
-                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+1] + in_weights[((in_width * in_y) + in_x) * in_depth + fd+1];
-                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+2] + in_weights[((in_width * in_y) + in_x) * in_depth + fd+2];
-                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+3] + in_weights[((in_width * in_y) + in_x) * in_depth + fd+3];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+1] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+1];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+2] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+2];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+3] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+3];
                                 }
                                 for(int fd = filter_depth / 4 * 4; fd < filter_depth; fd++) {
                                     sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] + in_weights[((in_width * fy) + fx) * in_depth + fd];
