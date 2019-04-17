@@ -321,7 +321,7 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
         
-        eouble *in_weights = in->weights;
+        double *in_weights = in->weights;
         double *out_weights = out->weights;
         double *bias_weights = l->biases->weights;
         
