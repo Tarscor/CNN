@@ -130,7 +130,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                     sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+3] + in_weights[((in_width * fy) + fx) * in_depth + fd+3];
                                 }
                                 for(int fd = filter_depth / 4 * 4; fd < filter_depth; fd++) {
-                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] + in_weights[((in_width * fy) + fx) * in_depth + fd];
                                 }
                             }
                         }
