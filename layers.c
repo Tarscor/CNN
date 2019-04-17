@@ -106,9 +106,10 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
             int filter_height = filter->height;
             int filter_width = filter->width;
             int filter_depth = filter->depth;
+            double *filter_weights = filter->weights;
             
             int y = -l->pad;
-            double weight = weights[f];
+            double bias_weight = weights[f];
             for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
@@ -121,15 +122,18 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
                                 for(int fd = 0; fd < filter_depth / 4 * 4; fd+=4) {
-                                    sum = sum + volume_get(filter, fx, fy, fd) * volume_get(in, in_x, in_y, fd) + volume_get(filter, fx, fy, fd+1) * volume_get(in, in_x, in_y, fd+1) + volume_get(filter, fx, fy, fd+2) * volume_get(in, in_x, in_y, fd+2) + volume_get(filter, fx, fy, fd+3) * volume_get(in, in_x, in_y, fd+3) ;
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd + 1];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd + 2];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd + 3];
                                 }
                                 for(int fd = filter_depth / 4 * 4; fd < filter_depth; fd++) {
-                                    sum += volume_get(filter, fx, fy, fd) * volume_get(in, in_x, in_y, fd);
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd];
                                 }
                             }
                         }
                     }
-                    sum += weight;
+                    sum += bias_weight;
                     volume_set(out, out_x, out_y, f, sum);
                 }
             }
