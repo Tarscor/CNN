@@ -174,11 +174,12 @@ void conv_load(conv_layer_t *l, const char *file_name) {
             }
         }
     }
-
+    int *biases = l->biases;
+    double *weights = biases->weights;
     for(int d = 0; d < l->output_depth; d++) {
         double val;
         fscanf(fin, "%lf", &val);
-        volume_set(l->biases, 0, 0, d, val);
+        weights[d] = val;
     }
 
     fclose(fin);
