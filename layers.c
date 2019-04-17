@@ -174,7 +174,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
             }
         }
     }
-    int **biases = l->biases;
+    volume_t *biases = l->biases;
     double *weights = biases->weights;
     for(int d = 0; d < l->output_depth; d++) {
         double val;
