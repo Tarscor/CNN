@@ -161,8 +161,8 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     for(int f = 0; f < filters; f++) {
       volume_t *filter = l_filters[f];
       double *filter_weights = filter->weights;
-      // int filter_width = filter->width;
-      // int filter_depth = filter->depth;
+      int filter_width = filter->width;
+      int filter_depth = filter->depth;
       for (int x = 0; x < filter_width; x++) {
           for (int y = 0; y < filter_height; y++) {
                 // int index = (filter_width * y + x) * filter_depth;
