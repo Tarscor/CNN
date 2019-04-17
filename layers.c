@@ -203,11 +203,22 @@ relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth
 // output(x, y, d) to max(0.0, input(x, y, d)).
 void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     for (int i = start; i <= end; i++) {
+      volume_t *input = inputs[i];
+      double *in_weights = input->weights;
+      int in_width = input->width;
+      int in_depth = input->depth;
+
+      volume_t *output = outputs[i];
+      double *out_weights = output->weights;
+      int out_width = output->width;
+      int out_depth = output->depth;
+
         for (int x = 0; x < l->input_width; x++) {
             for (int y = 0; y < l->input_height; y++) {
                 for (int d = 0; d < l->input_depth; d++) {
-                    double value = (volume_get(inputs[i], x, y, d) < 0.0) ? 0.0 : volume_get(inputs[i], x, y, d);
-                    volume_set(outputs[i], x, y, d, value);
+                    double volume_get = in_weights[((in_width * y) + x) * in_depth + d];
+                    double value = (volume_get < 0.0) ? 0.0 : volume_get;
+                    out_weights[((out_width * y) + x) * out_depth + d] = value;
                 }
             }
         }
