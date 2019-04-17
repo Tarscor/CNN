@@ -124,10 +124,10 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                         for(int fx = 0; fx < filter_width; fx++) {
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                __m256d sum = _mm256_set1_pd(0.0);
+                                __m256d sum = _mm256_setzero_pd();
                                 __m256d temp;
                                 double A[4];
-                                for(int fd = 0; fd < filter_depth / 16 * 16; fd+=16) {
+                                for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
                                     temp = _mm256_loadu_pd((filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
                                     sum = _mm256_add_pd(temp, sum);
 
