@@ -89,18 +89,18 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
         
-//        int in_height = in->height;
-//        int in_width = in->width;
+        int in_height = in->height;
+        int in_width = in->width;
         
         int stride = l->stride;
         
-//        int out_depth = l->output_depth;
-//        int out_height = l->output_height;
-//        int out_width = l->output_width;
+        int out_depth = l->output_depth;
+        int out_height = l->output_height;
+        int out_width = l->output_width;
         
-//        double *weights = l->biases->weights;
+        double *weights = l->biases->weights;
         
-        for(int f = 0; f < l->output_depth; f++) {
+        for(int f = 0; f < out_depth; f++) {
             volume_t *filter = l->filters[f];
             
             int filter_height = filter->height;
@@ -109,9 +109,9 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
             
             int y = -l->pad;
 //            int weight = weights[f];
-            for(int out_y = 0; out_y < l->output_height; y += stride, out_y++) {
+            for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
-                for(int out_x = 0; out_x < l->output_width; x += stride, out_x++) {
+                for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
                     
                     // Take sum of element-wise product
                     double sum = 0.0;
@@ -119,7 +119,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                         int in_y = y + fy;
                         for(int fx = 0; fx < filter_width; fx++) {
                             int in_x = x + fx;
-                            if(in_y >= 0 && in_y < in->height && in_x >=0 && in_x < in->width) {
+                            if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
                                 for(int fd = 0; fd < filter_depth; fd++) {
                                     sum += volume_get(filter, fx, fy, fd) * volume_get(in, in_x, in_y, fd);
                                 }
