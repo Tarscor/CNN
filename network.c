@@ -105,10 +105,12 @@ void free_network(network_t *net) {
 
 batch_t *make_batch(network_t *net, int size) {
     batch_t *out = (batch_t*) malloc(sizeof(volume_t **) * (NUM_LAYERS + 1));
+    volume_t *layers = net->layers;
     for (int i = 0; i < NUM_LAYERS + 1; i++) {
         out[i] = (volume_t **) malloc(sizeof(volume_t *)*size);
+        volume_t *volume = make_volume(layers[i]->width, layers[i]->height, layers[i]->depth, 0.0);
         for (int j = 0; j < size; j++) {
-            out[i][j] = make_volume(net->layers[i]->width, net->layers[i]->height, net->layers[i]->depth, 0.0);
+            out[i][j] = volume;
         }
     }
     return out;

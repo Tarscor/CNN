@@ -43,13 +43,18 @@ volume_t *make_volume(int width, int height, int depth, double value) {
 }
 
 void copy_volume(volume_t *dest, volume_t *src) {
-    assert(dest->width == src->width);
-    assert(dest->height == src->height);
-    assert(dest->depth == src->depth);
+    
+    int dest_width = dest->width;
+    int dest_height = dest->height;
+    int dest_depth = dest->depth;
+    
+    assert(dest_width == src->width);
+    assert(dest_height == src->height);
+    assert(dest_depth == src->depth);
 
-    for (int x = 0; x < dest->width; x++) {
-        for (int y = 0; y < dest->height; y++) {
-            for (int d = 0; d < dest->depth; d++) {
+    for (int x = 0; x < dest_width; x++) {
+        for (int y = 0; y < dest_height; y++) {
+            for (int d = 0; d < dest_depth; d++) {
                 volume_set(dest, x, y, d, volume_get(src, x, y, d));
             }
         }
