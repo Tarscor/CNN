@@ -98,41 +98,35 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         int out_height = l->output_height;
         int out_width = l->output_width;
         
-        double *weights = l->biases->weights;
-        
         for(int f = 0; f < out_depth; f++) {
             volume_t *filter = l->filters[f];
-            
-            int filter_height = filter->height;
-            int filter_width = filter->width;
-            int filter_depth = filter->depth;
-            
             int y = -l->pad;
-            int weight = weights[f];
             for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
                     
                     // Take sum of element-wise product
                     double sum = 0.0;
-                    for(int fy = 0; fy < filter_height; fy++) {
+                    for(int fy = 0; fy < filter->height; fy++) {
                         int in_y = y + fy;
-                        for(int fx = 0; fx < filter_width; fx++) {
+                        for(int fx = 0; fx < filter->width; fx++) {
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                for(int fd = 0; fd < filter_depth; fd++) {
+                                for(int fd = 0; fd < filter->depth; fd++) {
                                     sum += volume_get(filter, fx, fy, fd) * volume_get(in, in_x, in_y, fd);
                                 }
                             }
                         }
                     }
-                    sum += weight;
+                    
+                    sum += l->biases->weights[f];
                     volume_set(out, out_x, out_y, f, sum);
                 }
             }
         }
     }
 }
+
 void conv_load(conv_layer_t *l, const char *file_name) {
     int filter_width, filter_height, depth, filters;
     
