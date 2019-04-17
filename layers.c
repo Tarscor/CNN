@@ -163,15 +163,14 @@ void conv_load(conv_layer_t *l, const char *file_name) {
       double *filter_weights = filter->weights;
       int filter_width = filter->width;
       int filter_depth = filter->depth;
-      for (int y = 0; y < filter_height; y++) {
-          int index = filter_width * y;
-          for (int x = 0; x < filter_width; x++) {
-                // int index = (filter_width * y + x) * filter_depth;
+      for (int x = 0; x < filter_width; x++) {
+          for (int y = 0; y < filter_height; y++) {
+                int index = (filter_width * y + x) * filter_depth;
                 for (int d = 0; d < depth; d++) {
                     // index += d;
                     double val;
                     fscanf(fin, "%lf", &val);
-                    filter_weights[((index) + x) * filter_depth + d] = val;
+                    filter_weights[index + d] = val;
                 }
             }
         }
