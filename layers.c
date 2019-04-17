@@ -170,6 +170,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
                     double val;
                     fscanf(fin, "%lf", &val);
                     filter_weights[index + d] = val;
+                  }
             }
         }
     }
