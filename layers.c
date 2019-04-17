@@ -137,7 +137,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                         }
                     }
                     sum += bias_weight;
-                    out_weights[((out_width * out_y) + out-x) * out_depth + f] = sum;
+                    out_weights[((out_width * out_y) + out_x) * out_depth + f] = sum;
                 }
             }
         }
