@@ -20,31 +20,31 @@
 conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth, int filter_width, int num_filters,
                               int stride, int pad) {
     conv_layer_t *l = (conv_layer_t *) malloc(sizeof(conv_layer_t));
-    
+
     l->output_depth = num_filters;
     l->filter_width = filter_width;
     l->input_depth = input_depth;
     l->input_width = input_width;
     l->input_height = input_height;
-    
+
     l->filter_height = l->filter_width;
     l->stride = stride;
     l->pad = pad;
-    
+
     l->output_width = (l->input_width + l->pad * 2 - l->filter_width) /
     l->stride + 1;
     l->output_height = (l->input_height + l->pad * 2 - l->filter_height) /
     l->stride + 1;
-    
+
     l->filters = malloc(sizeof(volume_t *) * num_filters);
     for (int i = 0; i < num_filters; i++) {
         l->filters[i] = make_volume(l->filter_width, l->filter_height,
                                     l->input_depth, 0.0);
     }
-    
+
     l->bias = 0.0;
     l->biases = make_volume(1, 1, l->output_depth, l->bias);
-    
+
     return l;
 }
 
@@ -88,35 +88,35 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
-        
+
         int in_height = in->height;
         int in_width = in->width;
         int in_depth = in->depth;
         double *in_weights = in->weights;
-        
+
         int stride = l->stride;
-        
+
         int out_depth = l->output_depth;
         int out_height = l->output_height;
         int out_width = l->output_width;
         double *out_weights = out->weights;
-        
+
         double *weights = l->biases->weights;
-        
+
         for(int f = 0; f < out_depth; f++) {
             volume_t *filter = l->filters[f];
-            
+
             int filter_height = filter->height;
             int filter_width = filter->width;
             int filter_depth = filter->depth;
             double *filter_weights = filter->weights;
-            
+
             int y = -l->pad;
             double bias_weight = weights[f];
             for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
-                    
+
                     // Take sum of element-wise product
                     double sum = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
@@ -147,50 +147,50 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
 void conv_load(conv_layer_t *l, const char *file_name) {
     int filter_width, filter_height, depth, filters;
-    
+
     FILE *fin = fopen(file_name, "r");
-    
+
     fscanf(fin, "%d %d %d %d", &filter_width, &filter_height, &depth, &filters);
     assert(filter_width == l->filter_width);
     assert(filter_height == l->filter_height);
     assert(depth == l->input_depth);
     assert(filters == l->output_depth);
-    
-//    volume_t **l_filters = l->filters;
-    
+
+    // volume_t **l_filters = l->filters;
+
     for (int x = 0; x < filter_width; x++) {
         for (int y = 0; y < filter_height; y++) {
             for (int d = 0; d < depth; d++) {
                 for(int f = 0; f < filters; f++) {
                     double val;
                     fscanf(fin, "%lf", &val);
-//                    l_filters[f]->weights[((l_filters[f]->width * y) + x) * l_filters[f]->depth + d] = val;
                     volume_set(l->filters[f], x, y, d, val);
+                    // l_filters[f]->weights[((l_filters[f]->width * y) + x) * l_filters[f]->depth + d] = val;
                 }
             }
         }
     }
-    
+
     for(int d = 0; d < l->output_depth; d++) {
         double val;
         fscanf(fin, "%lf", &val);
         volume_set(l->biases, 0, 0, d, val);
     }
-    
+
     fclose(fin);
 }
 
 relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth) {
     relu_layer_t *l = (relu_layer_t *) malloc(sizeof(relu_layer_t));
-    
+
     l->input_depth = input_depth;
     l->input_width = input_width;
     l->input_height = input_height;
-    
+
     l->output_width = l->input_width;
     l->output_height = l->input_height;
     l->output_depth = l->input_depth;
-    
+
     return l;
 }
 
@@ -211,20 +211,20 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
 pool_layer_t *make_pool_layer(int input_width, int input_height, int input_depth, int pool_width, int stride) {
     pool_layer_t *l = (pool_layer_t *) malloc(sizeof(pool_layer_t));
-    
+
     l->pool_width = pool_width;
     l->input_depth = input_depth;
     l->input_width = input_width;
     l->input_height = input_height;
-    
+
     l->pool_height = l->pool_width;
     l->stride = stride;
     l->pad = 0;
-    
+
     l->output_depth = input_depth;
     l->output_width = floor((l->input_width + l->pad * 2 - l->pool_width) / l->stride + 1);
     l->output_height = floor((l->input_height + l->pad * 2 - l->pool_height) / l->stride + 1);
-    
+
     return l;
 }
 
@@ -244,14 +244,14 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
-        
+
         int n = 0;
         for(int d = 0; d < l->output_depth; d++) {
             int x = -l->pad;
             for(int out_x = 0; out_x < l->output_width; x += l->stride, out_x++) {
                 int y = -l->pad;
                 for(int out_y = 0; out_y < l->output_height; y += l->stride, out_y++) {
-                    
+
                     double max = -INFINITY;
                     for(int fx = 0; fx < l->pool_width; fx++) {
                         for(int fy = 0; fy < l->pool_height; fy++) {
@@ -265,7 +265,7 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                             }
                         }
                     }
-                    
+
                     n++;
                     volume_set(out, out_x, out_y, d, max);
                 }
@@ -276,24 +276,24 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
 fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, int num_neurons) {
     fc_layer_t *l = (fc_layer_t *) malloc(sizeof(fc_layer_t));
-    
+
     l->output_depth = num_neurons;
     l->input_depth = input_depth;
     l->input_width = input_width;
     l->input_height = input_height;
-    
+
     l->num_inputs = l->input_width * l->input_height * l->input_depth;
     l->output_width = 1;
     l->output_height = 1;
-    
+
     l->filters = (volume_t **) malloc(sizeof(volume_t *) * num_neurons);
     for (int i = 0; i < l->output_depth; i++) {
         l->filters[i] = make_volume(1, 1, l->num_inputs, 0.0);
     }
-    
+
     l->bias = 0.0;
     l->biases = make_volume(1, 1, l->output_depth, l->bias);
-    
+
     return l;
 }
 
@@ -304,7 +304,7 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
-        
+
         for(int i = 0; i < l->output_depth;i++) {
             double dot = 0.0;
             for(int d = 0; d < l->num_inputs; d++) {
@@ -318,38 +318,38 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
 
 void fc_load(fc_layer_t *l, const char *filename) {
     FILE *fin = fopen(filename, "r");
-    
+
     int num_inputs;
     int output_depth;
     fscanf(fin, "%d %d", &num_inputs, &output_depth);
     assert(output_depth == l->output_depth);
     assert(num_inputs == l->num_inputs);
-    
+
     for(int i = 0; i < l->output_depth; i++)
         for(int j = 0; j < l->num_inputs; j++) {
             fscanf(fin, "%lf", &(l->filters[i]->weights[j]));
         }
-    
+
     for(int i = 0; i < l->output_depth; i++) {
         fscanf(fin, "%lf", &(l->biases->weights[i]));
     }
-    
+
     fclose(fin);
 }
 
 softmax_layer_t *make_softmax_layer(int input_width, int input_height, int input_depth) {
     softmax_layer_t *l = (softmax_layer_t*) malloc(sizeof(softmax_layer_t));
-    
+
     l->input_depth = input_depth;
     l->input_width = input_width;
     l->input_height = input_height;
-    
+
     l->output_width = 1;
     l->output_height = 1;
     l->output_depth = l->input_width * l->input_height * l->input_depth;
-    
+
     l->likelihoods = (double*) malloc(sizeof(double) * l->output_depth);
-    
+
     return l;
 }
 
@@ -364,11 +364,11 @@ softmax_layer_t *make_softmax_layer(int input_width, int input_height, int input
 // but is more resilient to floating point errors.
 void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     double likelihoods[l->output_depth];
-    
+
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
-        
+
         // Compute max activation (used to compute exponentials)
         double amax = in->weights[0];
         for(int i = 1; i < l->output_depth; i++) {
@@ -376,7 +376,7 @@ void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, 
                 amax = in->weights[i];
             }
         }
-        
+
         // Compute exponentials in a numerically stable way
         double total = 0.0;
         for(int i = 0; i < l->output_depth; i++) {
@@ -384,7 +384,7 @@ void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, 
             total += e;
             likelihoods[i] = e;
         }
-        
+
         // Normalize and output to sum to one
         for(int i = 0; i < l->output_depth; i++) {
             out->weights[i] = likelihoods[i] / total;
