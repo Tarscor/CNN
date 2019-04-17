@@ -170,8 +170,11 @@ void conv_load(conv_layer_t *l, const char *file_name) {
                     double val;
                     fscanf(fin, "%lf", &val);
                     filter_weights[index + d] = val;
+                    fscanf(fin, "%lf", &val);
                     filter_weights[index + d + 1] = val;
+                    fscanf(fin, "%lf", &val);
                     filter_weights[index + d + 2] = val;
+                    fscanf(fin, "%lf", &val);
                     filter_weights[index + d + 3] = val;
                 }
                 for (int d = depth / 4 * 4; d < depth; d++) {
