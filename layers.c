@@ -126,7 +126,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                             }
                         }
                     }
-                    sum += l->biases->weights[f];
+                    sum += weight;
                     volume_set(out, out_x, out_y, f, sum);
                 }
             }
