@@ -187,9 +187,9 @@ relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth
 // Applies the Rectifier Linear Unit (ReLU) function to the input, which sets
 // output(x, y, d) to max(0.0, input(x, y, d)).
 void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    int in_width = input->width;
-    int in_height = input->height;
-    int in_depth = input->depth;
+    int in_width = l->input_width;
+    int in_height = l->input_height;
+    int in_depth = l->input_depth;
     
     for (int x = 0; x < in_width; x++) {
         for (int y = 0; y < in_height; y++) {
@@ -237,12 +237,12 @@ pool_layer_t *make_pool_layer(int input_width, int input_height, int input_depth
 // is the maximum element). This effectively compresses the input.
 void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     
-    int in_width = in->width;
-    int in_height = in->height;
-    
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
+        
+        int in_width = in->width;
+        int in_height = in->height;
         
         int output_depth = l->output_depth;
         int output_width = l->output_width;
@@ -323,7 +323,7 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
         
         int *in_weights = in->weights;
         int *out_weights = out->weights;
-        int *biase_weights = l->biases->weights;
+        int *bias_weights = l->biases->weights;
         
         int num_inputs = l->num_inputs;
         volume_t **filters = l->filters;
@@ -332,7 +332,7 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
             double dot = 0.0;
             volume_t *filter = filters[i];
             for(int d = 0; d < num_inputs; d++) {
-                dot += weights[d] * filter->weights[d];
+                dot += in_weights[d] * filter->weights[d];
             }
             dot += bias_weights[i];
             out_weights[i] = dot;
