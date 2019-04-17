@@ -99,6 +99,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         int out_depth = l->output_depth;
         int out_height = l->output_height;
         int out_width = l->output_width;
+        double *out_weights = out->weights;
         
         double *weights = l->biases->weights;
         
@@ -136,7 +137,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                         }
                     }
                     sum += bias_weight;
-                    v->weights[((out_width * out_y) + out-x) * out_depth + f] = sum;
+                    out_weights[((out_width * out_y) + out-x) * out_depth + f] = sum;
                 }
             }
         }
@@ -163,7 +164,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
                 for(int f = 0; f < filters; f++) {
                     double val;
                     fscanf(fin, "%lf", &val);
-                    v->weights[((l_filters[f]->width * y) + x) * l_filters[f]->depth + d] = val;
+                    l_filters[f]->weights[((l_filters[f]->width * y) + x) * l_filters[f]->depth + d] = val;
                 }
             }
         }
