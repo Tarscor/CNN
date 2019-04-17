@@ -165,7 +165,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
       int filter_depth = filter->depth;
       for (int x = 0; x < filter_width; x++) {
           for (int y = 0; y < filter_height; y++) {
-                index = (filter_width * y + x) * filter_depth;
+                int index = (filter_width * y + x) * filter_depth;
                 for (int d = 0; d < depth; d++) {
                     index += d;
                     double val;
