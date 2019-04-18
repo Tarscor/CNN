@@ -477,23 +477,27 @@ void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, 
 
         // Compute max activation (used to compute exponentials)
         double amax = in_weights[0];
-        for(int i = 1; i < out_depth; i++) {
-            if (in_weights[i] > amax) {
+        for(int i = 0; i < out_depth; i++) {
+            if ((in_weights[i] > amax) && (i > 0)) {
                 amax = in_weights[i];
             }
-        }
-
-        // Compute exponentials in a numerically stable way
-        double total = 0.0;
-        for(int i = 0; i < out_depth; i++) {
             double e = exp(in->weights[i] - amax);
             total += e;
             likelihoods[i] = e;
-        }
-
-        // Normalize and output to sum to one
-        for(int i = 0; i < out_depth; i++) {
             out_weights[i] = likelihoods[i] / total;
         }
+
+        // Compute exponentials in a numerically stable way
+        // double total = 0.0;
+        // for(int i = 0; i < out_depth; i++) {
+        //     double e = exp(in->weights[i] - amax);
+        //     total += e;
+        //     likelihoods[i] = e;
+        // }
+        //
+        // // Normalize and output to sum to one
+        // for(int i = 0; i < out_depth; i++) {
+        //     out_weights[i] = likelihoods[i] / total;
+        // }
     }
 }
