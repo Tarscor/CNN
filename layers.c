@@ -224,24 +224,44 @@ relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth
 // Applies the Rectifier Linear Unit (ReLU) function to the input, which sets
 // output(x, y, d) to max(0.0, input(x, y, d)).
 void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    for (int i = start; i <= end; i++) {
-      volume_t *input = inputs[i];
-      double *in_weights = input->weights;
-      int in_width = input->width;
-      int in_height = input->height;
-      int in_depth = input->depth;
+      for (int i = start; i <= end; i++) {
+        volume_t *input = inputs[i];
+        double *in_weights = input->weights;
+        int in_width = input->width;
+        int in_height = input->height;
+        int in_depth = input->depth;
 
-      volume_t *output = outputs[i];
-      double *out_weights = output->weights;
-      int out_width = output->width;
-      int out_depth = output->depth;
+        volume_t *output = outputs[i];
+        double *out_weights = output->weights;
+        int out_width = output->width;
+        int out_depth = output->depth;
+
+        double volume_get;
+        double value;
 
         for (int x = 0; x < in_width; x++) {
             for (int y = 0; y < in_height; y++) {
-                for (int d = 0; d < in_depth; d++) {
-                    double volume_get = in_weights[((in_width * y) + x) * in_depth + d];
-                    double value = (volume_get < 0.0) ? 0.0 : volume_get;
+                for (int d = 0; d < in_depth/4 * 4; d+=4) {
+                    volume_get = in_weights[((in_width * y) + x) * in_depth + d];
+                    value = (volume_get < 0.0) ? 0.0 : volume_get;
                     out_weights[((out_width * y) + x) * out_depth + d] = value;
+
+                    volume_get = in_weights[((in_width * y) + x) * in_depth + d + 1];
+                    value = (volume_get < 0.0) ? 0.0 : volume_get;
+                    out_weights[((out_width * y) + x) * out_depth + d + 1] = value;
+
+                    volume_get = in_weights[((in_width * y) + x) * in_depth + d + 2];
+                    value = (volume_get < 0.0) ? 0.0 : volume_get;
+                    out_weights[((out_width * y) + x) * out_depth + d + 2] = value;
+
+                    volume_get = in_weights[((in_width * y) + x) * in_depth + d + 3];
+                    value = (volume_get < 0.0) ? 0.0 : volume_get;
+                    out_weights[((out_width * y) + x) * out_depth + d + 3] = value;
+                }
+                for (int d = in_depth/4 * 4; d < in_depth; d++) {
+                  volume_get = in_weights[((in_width * y) + x) * in_depth + d];
+                  value = (volume_get < 0.0) ? 0.0 : volume_get;
+                  out_weights[((out_width * y) + x) * out_depth + d] = value;
                 }
             }
         }
