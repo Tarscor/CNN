@@ -102,70 +102,69 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         double *out_weights = out->weights;
 
         double *weights = l->biases->weights;
-        #pragma omp parallel
-        {
-          for(int f = 0; f < out_depth; f++) {
-              volume_t *filter = l->filters[f];
 
-              int filter_height = filter->height;
-              int filter_width = filter->width;
-              int filter_depth = filter->depth;
-              double *filter_weights = filter->weights;
+        for(int f = 0; f < out_depth; f++) {
+            volume_t *filter = l->filters[f];
 
-              int y = -l->pad;
-              double bias_weight = weights[f];
-              for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
-                  int x = -l->pad;
-                  for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
-                      // Take sum of element-wise product
-                      double result = 0.0;
-                      for(int fy = 0; fy < filter_height; fy++) {
-                          int in_y = y + fy;
-                          for(int fx = 0; fx < filter_width; fx++) {
-                              int in_x = x + fx;
-                              if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                  __m256d sum = _mm256_setzero_pd();
-                                  __m256d filter_temp;
-                                  __m256d temp;
-                                  double A[4];
-                                  for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
-                                      filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd);
-                                      temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd);
-                                      temp = _mm256_mul_pd(filter_temp, temp);
-                                      sum = _mm256_add_pd(temp, sum);
+            int filter_height = filter->height;
+            int filter_width = filter->width;
+            int filter_depth = filter->depth;
+            double *filter_weights = filter->weights;
 
-                                      filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 4);
-                                      temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 4);
-                                      temp = _mm256_mul_pd(filter_temp, temp);
-                                      sum = _mm256_add_pd(temp, sum);
+            int y = -l->pad;
+            double bias_weight = weights[f];
+            for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
+                int x = -l->pad;
+                for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
+                    // Take sum of element-wise product
+                    double result = 0.0;
+                    for(int fy = 0; fy < filter_height; fy++) {
+                        int in_y = y + fy;
+                        #pragma omp parallel for
+                        for(int fx = 0; fx < filter_width; fx++) {
+                            int in_x = x + fx;
+                            if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
+                                __m256d sum = _mm256_setzero_pd();
+                                __m256d filter_temp;
+                                __m256d temp;
+                                double A[4];
+                                for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
+                                    filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd);
+                                    temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd);
+                                    temp = _mm256_mul_pd(filter_temp, temp);
+                                    sum = _mm256_add_pd(temp, sum);
 
-                                      filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 8);
-                                      temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 8);
-                                      temp = _mm256_mul_pd(filter_temp, temp);
-                                      sum = _mm256_add_pd(temp, sum);
+                                    filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 4);
+                                    temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 4);
+                                    temp = _mm256_mul_pd(filter_temp, temp);
+                                    sum = _mm256_add_pd(temp, sum);
 
-                                      filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 12);
-                                      temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 12);
-                                      temp = _mm256_mul_pd(filter_temp, temp);
-                                      sum = _mm256_add_pd(temp, sum);
-                                  }
-                                  _mm256_storeu_pd(A, sum);
-                                  for(int fd = filter_depth / 16 * 16; fd < filter_depth; fd++) {
-                                      A[0] += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
-                                  }
-                                  result += A[0];
-                                  result += A[1];
-                                  result += A[2];
-                                  result += A[3];
-                              }
-                          }
-                      }
-                      result += bias_weight;
-                      out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
-                  }
-              }
-          }
-      }
+                                    filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 8);
+                                    temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 8);
+                                    temp = _mm256_mul_pd(filter_temp, temp);
+                                    sum = _mm256_add_pd(temp, sum);
+
+                                    filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 12);
+                                    temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 12);
+                                    temp = _mm256_mul_pd(filter_temp, temp);
+                                    sum = _mm256_add_pd(temp, sum);
+                                }
+                                _mm256_storeu_pd(A, sum);
+                                for(int fd = filter_depth / 16 * 16; fd < filter_depth; fd++) {
+                                    A[0] += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
+                                }
+                                result += A[0];
+                                result += A[1];
+                                result += A[2];
+                                result += A[3];
+                            }
+                        }
+                    }
+                    result += bias_weight;
+                    out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
+                }
+            }
+        }
     }
 }
 
