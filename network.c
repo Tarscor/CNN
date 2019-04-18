@@ -145,7 +145,6 @@ void net_classify(network_t *net, volume_t **input, double **likelihoods, int n)
     #pragma omp parallel
     {
       batch_t *b = make_batch(net, 1);
-      #pragma omp for
       for (int i = 0; i < n; i++) {
           copy_volume(b[0][0], input[i]);
           net_forward(net, b, 0, 0);
