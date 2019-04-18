@@ -303,8 +303,6 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
-        int x = -l->pad;
-        int y = -l->pad;
         int l_stride = l->stride;
 
         int l_output_depth = l->output_depth;
@@ -317,7 +315,9 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
         int n = 0;
         for(int d = 0; d < l_output_depth; d++) {
+            int x = -l->pad;
             for(int out_x = 0; out_x < l_output_width; x += l_stride, out_x++) {
+                int y = -l->pad;
                 for(int out_y = 0; out_y < l_output_height; y += l_stride, out_y++) {
 
                     double max = -INFINITY;
