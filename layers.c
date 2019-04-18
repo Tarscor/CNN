@@ -85,6 +85,8 @@ conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth
 // at a coordinate (x, y, d). Finally, we add the corresponding bias for the
 // filter to the sum before putting it into the output volume.
 void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
+    #pragma omp parallel
+    {
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
@@ -126,7 +128,8 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 __m256d filter_temp;
                                 __m256d temp;
                                 double A[4];
-                                for(int fd = 0; fd < filter_depth/20 * 20; fd+=20) {
+                                #pragma omp for reduction(+: result)
+                                for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
                                     filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd);
                                     temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd);
                                     temp = _mm256_mul_pd(filter_temp, temp);
@@ -146,14 +149,9 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                     temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 12);
                                     temp = _mm256_mul_pd(filter_temp, temp);
                                     sum = _mm256_add_pd(temp, sum);
-
-                                    filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd + 16);
-                                    temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd + 16);
-                                    temp = _mm256_mul_pd(filter_temp, temp);
-                                    sum = _mm256_add_pd(temp, sum);
                                 }
                                 _mm256_storeu_pd(A, sum);
-                                for(int fd = filter_depth / 20 * 20; fd < filter_depth; fd++) {
+                                for(int fd = filter_depth / 16 * 16; fd < filter_depth; fd++) {
                                     A[0] += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
                                 }
                                 result += A[0];
@@ -169,6 +167,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
             }
         }
     }
+  }
 }
 
 
