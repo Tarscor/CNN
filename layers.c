@@ -85,8 +85,6 @@ conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth
 // at a coordinate (x, y, d). Finally, we add the corresponding bias for the
 // filter to the sum before putting it into the output volume.
 void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    #pragma omp parallel
-    {
       for (int i = start; i <= end; i++) {
           volume_t *in = inputs[i];
           volume_t *out = outputs[i];
@@ -167,7 +165,6 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
               }
           }
         }
-      }
 }
 
 
@@ -183,32 +180,34 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     assert(filters == l->output_depth);
 
     volume_t **l_filters = l->filters;
+    #pragma omp parallel for
+    {
+      for(int f = 0; f < filters; f++) {
+        volume_t *filter = l_filters[f];
+        double *filter_weights = filter->weights;
+        int filter_width = filter->width;
+        int filter_depth = filter->depth;
+        for (int x = 0; x < filter_width; x++) {
+            for (int y = 0; y < filter_height; y++) {
+                  int index = (filter_width * y + x) * filter_depth;
+                  for (int d = 0; d < depth; d++) {
+                      double val;
+                      fscanf(fin, "%lf", &val);
+                      filter_weights[index + d] = val;
+                    }
+              }
+          }
+      }
+      volume_t *biases = l->biases;
+      double *weights = biases->weights;
+      for(int d = 0; d < l->output_depth; d++) {
+          double val;
+          fscanf(fin, "%lf", &val);
+          weights[d] = val;
+      }
 
-    for(int f = 0; f < filters; f++) {
-      volume_t *filter = l_filters[f];
-      double *filter_weights = filter->weights;
-      int filter_width = filter->width;
-      int filter_depth = filter->depth;
-      for (int x = 0; x < filter_width; x++) {
-          for (int y = 0; y < filter_height; y++) {
-                int index = (filter_width * y + x) * filter_depth;
-                for (int d = 0; d < depth; d++) {
-                    double val;
-                    fscanf(fin, "%lf", &val);
-                    filter_weights[index + d] = val;
-                  }
-            }
-        }
-    }
-    volume_t *biases = l->biases;
-    double *weights = biases->weights;
-    for(int d = 0; d < l->output_depth; d++) {
-        double val;
-        fscanf(fin, "%lf", &val);
-        weights[d] = val;
-    }
-
-    fclose(fin);
+      fclose(fin);
+  }
 }
 
 relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth) {
