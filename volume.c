@@ -31,10 +31,13 @@ volume_t *make_volume(int width, int height, int depth, double value) {
     new_vol->height = height;
     new_vol->depth = depth;
 
+    double *new_vol_weights = new_vol->weights;
+
+
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             for (int d = 0; d < depth; d++) {
-                volume_set(new_vol, x, y, d, value);
+                new_vol_weights[((width * y) + x) * depth + d] = value;
             }
         }
     }
