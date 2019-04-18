@@ -303,20 +303,29 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
+        int x = -l->pad;
+        int y = -l->pad;
+        int l_stride = l->stride;
+
+        int l_output_depth = l->output_depth;
+        int l_output_width = l->output_width;
+        int l_output_height = l->output_height;
+        int l_pool_width = l->pool_width;
+        int l_pool_height = l->pool_height;
+        int in_width = in->width;
+        int in_height = in->height;
 
         int n = 0;
-        for(int d = 0; d < l->output_depth; d++) {
-            int x = -l->pad;
-            for(int out_x = 0; out_x < l->output_width; x += l->stride, out_x++) {
-                int y = -l->pad;
-                for(int out_y = 0; out_y < l->output_height; y += l->stride, out_y++) {
+        for(int d = 0; d < l_output_depth; d++) {
+            for(int out_x = 0; out_x < l_output_width; x += l_stride, out_x++) {
+                for(int out_y = 0; out_y < l_output_height; y += l_stride, out_y++) {
 
                     double max = -INFINITY;
-                    for(int fx = 0; fx < l->pool_width; fx++) {
-                        for(int fy = 0; fy < l->pool_height; fy++) {
+                    for(int fx = 0; fx < l_pool_width; fx++) {
+                        int in_x = x + fx;
+                        for(int fy = 0; fy < l_pool_height; fy++) {
                             int in_y = y + fy;
-                            int in_x = x + fx;
-                            if(in_x >= 0 && in_x < in->width && in_y >= 0 && in_y < in->height) {
+                            if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
                                 double v = volume_get(in, in_x, in_y, d);
                                 if(v > max) {
                                     max = v;
