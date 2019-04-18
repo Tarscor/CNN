@@ -180,7 +180,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     assert(filters == l->output_depth);
 
     volume_t **l_filters = l->filters;
-    #pragma omp parallel for
+    #pragma omp parallel
     {
       for(int f = 0; f < filters; f++) {
         volume_t *filter = l_filters[f];
