@@ -113,6 +113,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
             int y = -l->pad;
             double bias_weight = weights[f];
+            #pragma omp parallel for
             for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
                 int x = -l->pad;
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
@@ -120,7 +121,6 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                     double result = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
-                        #pragma omp parallel for
                         for(int fx = 0; fx < filter_width; fx++) {
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
