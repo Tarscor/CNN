@@ -224,6 +224,7 @@ relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth
 // Applies the Rectifier Linear Unit (ReLU) function to the input, which sets
 // output(x, y, d) to max(0.0, input(x, y, d)).
 void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
+      #pragma omp parallel for
       for (int i = start; i <= end; i++) {
         volume_t *input = inputs[i];
         double *in_weights = input->weights;
@@ -238,7 +239,6 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
         double volume_get;
         double value;
-        #pragma omp parallel for
         for (int x = 0; x < in_width; x++) {
             for (int y = 0; y < in_height; y++) {
                 for (int d = 0; d < in_depth/4 * 4; d+=4) {
