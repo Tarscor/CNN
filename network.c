@@ -104,11 +104,9 @@ void free_network(network_t *net) {
 }
 
 batch_t *make_batch(network_t *net, int size) {
-  #pragma omp parallel
-  {
     batch_t *out = (batch_t*) malloc(sizeof(volume_t **) * (NUM_LAYERS + 1));
     volume_t **layers = net->layers;
-    #pragma omp for
+    #pragma omp parallel for
     for (int i = 0; i < NUM_LAYERS + 1; i++) {
         out[i] = (volume_t **) malloc(sizeof(volume_t *)*size);
         volume_t *volume = make_volume(layers[i]->width, layers[i]->height, layers[i]->depth, 0.0);
@@ -116,7 +114,6 @@ batch_t *make_batch(network_t *net, int size) {
             out[i][j] = volume;
         }
     }
-  }
     return out;
 }
 
