@@ -43,11 +43,11 @@ volume_t *make_volume(int width, int height, int depth, double value) {
 }
 
 void copy_volume(volume_t *dest, volume_t *src) {
-    
+
     int dest_width = dest->width;
     int dest_height = dest->height;
     int dest_depth = dest->depth;
-    
+
     assert(dest_width == src->width);
     assert(dest_height == src->height);
     assert(dest_depth == src->depth);
