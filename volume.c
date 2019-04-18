@@ -33,7 +33,7 @@ volume_t *make_volume(int width, int height, int depth, double value) {
 
     double *new_vol_weights = new_vol->weights;
 
-    #pragma omp parallel for
+
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             for (int d = 0; d < depth/4 * 4; d+=4) {
