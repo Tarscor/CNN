@@ -85,7 +85,7 @@ conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth
 // at a coordinate (x, y, d). Finally, we add the corresponding bias for the
 // filter to the sum before putting it into the output volume.
 void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    #pragma omp parallel for
+    #pragma omp parallel
     {
       for (int i = start; i <= end; i++) {
           volume_t *in = inputs[i];
