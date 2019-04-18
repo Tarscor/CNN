@@ -467,7 +467,7 @@ softmax_layer_t *make_softmax_layer(int input_width, int input_height, int input
 // but is more resilient to floating point errors.
 void softmax_forward(softmax_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     double likelihoods[l->output_depth];
-
+    #pragma omp parallel for
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
