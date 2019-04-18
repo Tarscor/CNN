@@ -128,23 +128,29 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 __m256d temp;
                                 double A[4];
                                 for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
-                                    temp = _mm256_fmadd_pd(filter_width, fy, fx);
-                                    temp = _mm256_fmadd_pd(temp, filter_depth, fd);
+                                    __m256d width = _mm256_loadu_pd(filter_width);
+                                    __m256d depth = _mm256_loadu_pd(filter_depth);
+                                    __m256d y = _mm256_loadu_pd(fy);
+                                    __m256d x = _mm256_loadu_pd(fx);
+                                    __m256d d = _mm256_loadu_pd(fd);
+
+                                    temp = _mm256_fmadd_pd(width, y, x);
+                                    temp = _mm256_fmadd_pd(temp, depth, d);
                                     temp = _mm256_loadu_pd(filter_weights + temp);
                                     sum = _mm256_add_pd(temp, sum);
 
-                                    temp = _mm256_fmadd_pd(filter_width, fy, fx);
-                                    temp = _mm256_fmadd_pd(temp, filter_depth, fd);
+                                    temp = _mm256_fmadd_pd(width, y, x);
+                                    temp = _mm256_fmadd_pd(temp, depth, d);
                                     temp = _mm256_loadu_pd(filter_weights + temp + 4);
                                     sum = _mm256_add_pd(temp, sum);
 
-                                    temp = _mm256_fmadd_pd(filter_width, fy, fx);
-                                    temp = _mm256_fmadd_pd(temp, filter_depth, fd);
+                                    temp = _mm256_fmadd_pd(width, y, x);
+                                    temp = _mm256_fmadd_pd(temp, depth, d);
                                     temp = _mm256_loadu_pd(filter_weights + temp + 8);
                                     sum = _mm256_add_pd(temp, sum);
 
-                                    temp = _mm256_fmadd_pd(filter_width, fy, fx);
-                                    temp = _mm256_fmadd_pd(temp, filter_depth, fd);
+                                    temp = _mm256_fmadd_pd(width, y, x);
+                                    temp = _mm256_fmadd_pd(temp, depth, d);
                                     temp = _mm256_loadu_pd(filter_weights + temp + 12);
                                     sum = _mm256_add_pd(temp, sum);
                                     // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
