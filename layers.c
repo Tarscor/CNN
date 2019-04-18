@@ -85,26 +85,26 @@ conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth
 // at a coordinate (x, y, d). Finally, we add the corresponding bias for the
 // filter to the sum before putting it into the output volume.
 void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
-    for (int i = start; i <= end; i++) {
-        volume_t *in = inputs[i];
-        volume_t *out = outputs[i];
+    #pragma omp parallel
+    {
+      for (int i = start; i <= end; i++) {
+          volume_t *in = inputs[i];
+          volume_t *out = outputs[i];
 
-        int in_height = in->height;
-        int in_width = in->width;
-        int in_depth = in->depth;
-        double *in_weights = in->weights;
+          int in_height = in->height;
+          int in_width = in->width;
+          int in_depth = in->depth;
+          double *in_weights = in->weights;
 
-        int stride = l->stride;
+          int stride = l->stride;
 
-        int out_depth = l->output_depth;
-        int out_height = l->output_height;
-        int out_width = l->output_width;
-        double *out_weights = out->weights;
+          int out_depth = l->output_depth;
+          int out_height = l->output_height;
+          int out_width = l->output_width;
+          double *out_weights = out->weights;
 
-        double *weights = l->biases->weights;
+          double *weights = l->biases->weights;
 
-        #pragma omp parallel
-        {
           for(int f = 0; f < out_depth; f++) {
               volume_t *filter = l->filters[f];
 
@@ -162,14 +162,13 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                               }
                           }
                       }
-                      #pragma omp critical
                       result += bias_weight;
                       out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
                   }
               }
           }
         }
-    }
+      }
 }
 
 
