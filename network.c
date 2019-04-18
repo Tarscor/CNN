@@ -116,8 +116,8 @@ batch_t *make_batch(network_t *net, int size) {
             out[i][j] = volume;
         }
     }
-    return out;
   }
+    return out;
 }
 
 void free_batch(batch_t *b, int size) {
