@@ -25,14 +25,13 @@ inline void volume_set(volume_t *v, int x, int y, int d, double value) {
 
 volume_t *make_volume(int width, int height, int depth, double value) {
     volume_t *new_vol = malloc(sizeof(struct volume));
-    #pragma omp parallel
-    {
     new_vol->weights = malloc(sizeof(double) * width * height * depth);
 
     new_vol->width = width;
     new_vol->height = height;
     new_vol->depth = depth;
-    #pragma omp for
+
+    #pragma omp parallel for
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             for (int d = 0; d < depth; d++) {
@@ -40,7 +39,6 @@ volume_t *make_volume(int width, int height, int depth, double value) {
             }
         }
     }
-  }
 
     return new_vol;
 }
