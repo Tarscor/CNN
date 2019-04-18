@@ -113,11 +113,11 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
             int y = -l->pad;
             double bias_weight = weights[f];
             for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
-              #pragma omp parallel
-              {
                 int x = -l->pad;
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
                     // Take sum of element-wise product
+                    #pragma omp parallel
+                    {
                     double result = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
