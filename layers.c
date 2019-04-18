@@ -118,19 +118,20 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
 
                     // Take sum of element-wise product
-                    double result = 0.0;
+                    // double result = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
                         for(int fx = 0; fx < filter_width; fx++) {
                             int in_x = x + fx;
                             if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                __m256i sum = _mm256_setzero_si256();
-                                __m256i temp;
-                                double A[4];
+                                // __m256i sum = _mm256_setzero_si256();
+                                // __m256i temp;
+                                // double A[4];
+                                double sum = 0.0;
                                 for(int fd = 0; fd < filter_depth/4 * 4; fd+=4) {
-                                    temp = _mm256_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
-                                    sum = _mm256_add_epi64(temp, sum);
-
+                                    // temp = _mm256_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
+                                    // sum = _mm256_add_epi64(temp, sum);
+                                    //
                                     // temp = _mm256_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 4)));
                                     // sum = _mm256_add_epi64(temp, sum);
                                     //
@@ -139,23 +140,23 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                     //
                                     // temp = _mm256_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd + 12)));
                                     // sum = _mm256_add_epi64(temp, sum);
-                                    // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
-                                    // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+1] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+1];
-                                    // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+2] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+2];
-                                    // sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+3] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+3];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+1] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+1];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+2] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+2];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd+3] * in_weights[((in_width * in_y) + in_x) * in_depth + fd+3];
                                 }
-                                _mm256_storeu_si256((__m256i *) A, sum);
+                                // _mm256_storeu_si256((__m256i *) A, sum);
                                 for(int fd = filter_depth/4 * 4; fd < filter_depth; fd++) {
-                                    A[0] += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
+                                    sum += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
                                 }
-                                result += A[0];
-                                result += A[1];
-                                result += A[2];
-                                result += A[3];
+                                // result += A[0];
+                                // result += A[1];
+                                // result += A[2];
+                                // result += A[3];
                             }
                         }
                     }
-                    result += bias_weight;
+                    sum += bias_weight;
                     out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
                 }
             }
