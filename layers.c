@@ -171,7 +171,8 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     int filter_width, filter_height, depth, filters;
 
     FILE *fin = fopen(file_name, "r");
-
+    #pragma omp parallel
+    {
     fscanf(fin, "%d %d %d %d", &filter_width, &filter_height, &depth, &filters);
     assert(filter_width == l->filter_width);
     assert(filter_height == l->filter_height);
@@ -179,7 +180,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     assert(filters == l->output_depth);
 
     volume_t **l_filters = l->filters;
-    #pragma omp parallel for
+    #pragma omp for
     for(int f = 0; f < filters; f++) {
       volume_t *filter = l_filters[f];
       double *filter_weights = filter->weights;
@@ -203,7 +204,7 @@ void conv_load(conv_layer_t *l, const char *file_name) {
         fscanf(fin, "%lf", &val);
         weights[d] = val;
     }
-
+}
     fclose(fin);
 }
 
