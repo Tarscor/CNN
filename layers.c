@@ -168,7 +168,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                     sum = _mm256_add_pd(temp, sum);
                                 }
                                 _mm256_storeu_pd(A, sum);
-                                for(int fd = filter_depth / 16 * 16; fd < filter_depth; fd++) {
+                                for(int fd = filter_depth / 28 * 28; fd < filter_depth; fd++) {
                                     A[0] += filter_weights[((filter_width * fy) + fx) * filter_depth + fd] * in_weights[((in_width * in_y) + in_x) * in_depth + fd];
                                 }
                                 result += A[0];
