@@ -406,9 +406,9 @@ fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, in
 void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
     int l_output_depth = l->output_depth;
     int l_num_inputs = l->num_inputs;
-    // volume_t **l_filters = l->filters;
+    volume_t **l_filters = l->filters;
     double *biases_weights = l->biases->weights;
-
+    #pragma omp parallel for
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
@@ -417,7 +417,7 @@ void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start,
 
         for(int i = 0; i < l_output_depth;i++) {
             double dot = 0.0;
-            double *filter_weights = l->filters[i]->weights;
+            double *filter_weights = l_filters[i]->weights;
             for(int d = 0; d < l_num_inputs; d++) {
                 dot += in_weights[d] * filter_weights[d];
             }
