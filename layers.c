@@ -312,6 +312,11 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         int l_pool_height = l->pool_height;
         int in_width = in->width;
         int in_height = in->height;
+        int in_depth = in->depth;
+        double *in_weights = in->weights;
+        double *out_weights = out->weights;
+        int out_width = out->width;
+        int out_depth = out->depth;
 
         int n = 0;
         for(int d = 0; d < l_output_depth; d++) {
@@ -319,14 +324,13 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
             for(int out_x = 0; out_x < l_output_width; x += l_stride, out_x++) {
                 int y = -l->pad;
                 for(int out_y = 0; out_y < l_output_height; y += l_stride, out_y++) {
-
                     double max = -INFINITY;
                     for(int fx = 0; fx < l_pool_width; fx++) {
                         int in_x = x + fx;
                         for(int fy = 0; fy < l_pool_height; fy++) {
                             int in_y = y + fy;
                             if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
-                                double v = volume_get(in, in_x, in_y, d);
+                                double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
                                 if(v > max) {
                                     max = v;
                                 }
@@ -335,7 +339,7 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                     }
 
                     n++;
-                    volume_set(out, out_x, out_y, d, max);
+                    out_weights[((out_width * out_y) + out_x) * out_depth + d] = max;
                 }
             }
         }
