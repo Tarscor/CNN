@@ -62,7 +62,6 @@ void copy_volume(volume_t *dest, volume_t *src) {
     assert(dest_width == src->width);
     assert(dest_height == src->height);
     assert(dest_depth == src->depth);
-    #pragma omp parallel for
     for (int x = 0; x < dest_width; x++) {
         for (int y = 0; y < dest_height; y++) {
             for (int d = 0; d < dest_depth/4 * 4; d+=4) {
@@ -71,6 +70,7 @@ void copy_volume(volume_t *dest, volume_t *src) {
                 dest_weights[((dest_width * y) + x) * dest_depth + d] = src_weights[((dest_width * y) + x) * dest_depth + d + 2];
                 dest_weights[((dest_width * y) + x) * dest_depth + d] = src_weights[((dest_width * y) + x) * dest_depth + d + 3];
             }
+            #pragma omp parallel for
             for (int d = dest_depth/4 * 4; d < dest_depth; d++) {
                 dest_weights[((dest_width * y) + x) * dest_depth + d] = src_weights[((dest_width * y) + x) * dest_depth + d];
             }
