@@ -300,6 +300,7 @@ pool_layer_t *make_pool_layer(int input_width, int input_height, int input_depth
 // then the value of the corresponding element in the output is 5 (since that
 // is the maximum element). This effectively compresses the input.
 void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
+    #pragma omp parallel for
     for (int i = start; i <= end; i++) {
         volume_t *in = inputs[i];
         volume_t *out = outputs[i];
