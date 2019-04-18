@@ -37,6 +37,7 @@ conv_layer_t *make_conv_layer(int input_width, int input_height, int input_depth
     l->stride + 1;
 
     l->filters = malloc(sizeof(volume_t *) * num_filters);
+    #pragma omp parallel for
     for (int i = 0; i < num_filters; i++) {
         l->filters[i] = make_volume(l->filter_width, l->filter_height,
                                     l->input_depth, 0.0);
