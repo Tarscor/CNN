@@ -241,7 +241,7 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
         double value;
         for (int x = 0; x < in_width; x++) {
             for (int y = 0; y < in_height; y++) {
-                for (int d = 0; d < in_depth/4 * 4; d+=4) {
+                for (int d = 0; d < in_depth/3 * 3; d+=3) {
                     volume_get = in_weights[((in_width * y) + x) * in_depth + d];
                     value = (volume_get < 0.0) ? 0.0 : volume_get;
                     out_weights[((out_width * y) + x) * out_depth + d] = value;
@@ -253,15 +253,6 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                     volume_get = in_weights[((in_width * y) + x) * in_depth + d + 2];
                     value = (volume_get < 0.0) ? 0.0 : volume_get;
                     out_weights[((out_width * y) + x) * out_depth + d + 2] = value;
-
-                    volume_get = in_weights[((in_width * y) + x) * in_depth + d + 3];
-                    value = (volume_get < 0.0) ? 0.0 : volume_get;
-                    out_weights[((out_width * y) + x) * out_depth + d + 3] = value;
-                }
-                for (int d = in_depth/4 * 4; d < in_depth; d++) {
-                  volume_get = in_weights[((in_width * y) + x) * in_depth + d];
-                  value = (volume_get < 0.0) ? 0.0 : volume_get;
-                  out_weights[((out_width * y) + x) * out_depth + d] = value;
                 }
             }
         }
