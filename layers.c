@@ -185,7 +185,6 @@ void conv_load(conv_layer_t *l, const char *file_name) {
       double *filter_weights = filter->weights;
       int filter_width = filter->width;
       int filter_depth = filter->depth;
-      #pragma omp parallel for
       for (int x = 0; x < filter_width; x++) {
           for (int y = 0; y < filter_height; y++) {
                 int index = (filter_width * y + x) * filter_depth;
@@ -236,9 +235,9 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
       int out_width = output->width;
       int out_depth = output->depth;
 
-        for (int x = 0; x < l->input_width; x++) {
-            for (int y = 0; y < l->input_height; y++) {
-                for (int d = 0; d < l->input_depth; d++) {
+        for (int x = 0; x < in_width; x++) {
+            for (int y = 0; y < in_height; y++) {
+                for (int d = 0; d < in_depth; d++) {
                     double volume_get = in_weights[((in_width * y) + x) * in_depth + d];
                     double value = (volume_get < 0.0) ? 0.0 : volume_get;
                     out_weights[((out_width * y) + x) * out_depth + d] = value;
