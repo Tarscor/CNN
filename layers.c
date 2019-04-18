@@ -119,6 +119,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
                     // Take sum of element-wise product
                     // double result = 0.0;
+                    double sum = 0.0;
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
                         for(int fx = 0; fx < filter_width; fx++) {
@@ -127,7 +128,6 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 // __m256i sum = _mm256_setzero_si256();
                                 // __m256i temp;
                                 // double A[4];
-                                double sum = 0.0;
                                 for(int fd = 0; fd < filter_depth/4 * 4; fd+=4) {
                                     // temp = _mm256_loadu_si256((__m256i *) (filter_weights+(((filter_width * fy) + fx) * filter_depth + fd)));
                                     // sum = _mm256_add_epi64(temp, sum);
@@ -157,7 +157,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                         }
                     }
                     sum += bias_weight;
-                    out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
+                    out_weights[((out_width * out_y) + out_x) * out_depth + f] = sum;
                 }
             }
         }
