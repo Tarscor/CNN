@@ -389,12 +389,13 @@ fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, in
     l->output_height = 1;
 
     l->filters = (volume_t **) malloc(sizeof(volume_t *) * num_neurons);
-    for (int i = 0; i < l->output_depth; i++) {
-        l->filters[i] = make_volume(1, 1, l->num_inputs, 0.0);
+    volume_t **l_filters = l->filters;
+    for (int i = 0; i < num_neurons; i++) {
+        l_filters[i] = make_volume(1, 1, l->num_inputs, 0.0);
     }
 
     l->bias = 0.0;
-    l->biases = make_volume(1, 1, l->output_depth, l->bias);
+    l->biases = make_volume(1, 1, num_neurons, l->bias);
 
     return l;
 }
