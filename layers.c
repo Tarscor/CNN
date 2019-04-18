@@ -198,16 +198,16 @@ void conv_load(conv_layer_t *l, const char *file_name) {
               }
           }
       }
-      volume_t *biases = l->biases;
-      double *weights = biases->weights;
-      for(int d = 0; d < l->output_depth; d++) {
-          double val;
-          fscanf(fin, "%lf", &val);
-          weights[d] = val;
-      }
+    }
+    volume_t *biases = l->biases;
+    double *weights = biases->weights;
+    for(int d = 0; d < l->output_depth; d++) {
+        double val;
+        fscanf(fin, "%lf", &val);
+        weights[d] = val;
+    }
 
-      fclose(fin);
-  }
+    fclose(fin);
 }
 
 relu_layer_t *make_relu_layer(int input_width, int input_height, int input_depth) {
