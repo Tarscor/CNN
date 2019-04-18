@@ -228,6 +228,7 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
       volume_t *input = inputs[i];
       double *in_weights = input->weights;
       int in_width = input->width;
+      int in_height = input->height;
       int in_depth = input->depth;
 
       volume_t *output = outputs[i];
