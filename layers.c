@@ -165,6 +165,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
               }
           }
         }
+      }
 }
 
 
@@ -180,24 +181,22 @@ void conv_load(conv_layer_t *l, const char *file_name) {
     assert(filters == l->output_depth);
 
     volume_t **l_filters = l->filters;
-    #pragma omp parallel
-    {
-      for(int f = 0; f < filters; f++) {
-        volume_t *filter = l_filters[f];
-        double *filter_weights = filter->weights;
-        int filter_width = filter->width;
-        int filter_depth = filter->depth;
-        for (int x = 0; x < filter_width; x++) {
-            for (int y = 0; y < filter_height; y++) {
-                  int index = (filter_width * y + x) * filter_depth;
-                  for (int d = 0; d < depth; d++) {
-                      double val;
-                      fscanf(fin, "%lf", &val);
-                      filter_weights[index + d] = val;
-                    }
-              }
-          }
-      }
+
+    for(int f = 0; f < filters; f++) {
+      volume_t *filter = l_filters[f];
+      double *filter_weights = filter->weights;
+      int filter_width = filter->width;
+      int filter_depth = filter->depth;
+      for (int x = 0; x < filter_width; x++) {
+          for (int y = 0; y < filter_height; y++) {
+                int index = (filter_width * y + x) * filter_depth;
+                for (int d = 0; d < depth; d++) {
+                    double val;
+                    fscanf(fin, "%lf", &val);
+                    filter_weights[index + d] = val;
+                  }
+            }
+        }
     }
     volume_t *biases = l->biases;
     double *weights = biases->weights;
