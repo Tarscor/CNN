@@ -327,7 +327,7 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                     double max = -INFINITY;
                     for(int fx = 0; fx < l_pool_width; fx++) {
                         int in_x = x + fx;
-                        for(int fy = 0; fy < l_pool_height; fy++) {
+                        for(int fy = 0; fy < l_pool_height/4 * 4; fy+=4) {
                             int in_y = y + fy;
                             if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
                                 double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
@@ -335,9 +335,38 @@ void pool_forward(pool_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                     max = v;
                                 }
                             }
+                            in_y++;
+                            if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
+                                double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
+                                if(v > max) {
+                                    max = v;
+                                }
+                            }
+                            in_y++;
+                            if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
+                                double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
+                                if(v > max) {
+                                    max = v;
+                                }
+                            }
+                            in_y++;
+                            if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
+                                double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
+                                if(v > max) {
+                                    max = v;
+                                }
+                            }
+                        }
+                        for(int fy = l_pool_height/4 * 4; fy < l_pool_height; fy++) {
+                          int in_y = y + fy;
+                          if(in_x >= 0 && in_x < in_width && in_y >= 0 && in_y < in_height) {
+                              double v = in_weights[((in_width * in_y) + in_x) * in_depth + d];
+                              if(v > max) {
+                                  max = v;
+                              }
+                          }
                         }
                     }
-
                     n++;
                     out_weights[((out_width * out_y) + out_x) * out_depth + d] = max;
                 }
