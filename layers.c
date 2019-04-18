@@ -126,7 +126,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 __m256d filter_temp;
                                 __m256d temp;
                                 double A[4];
-                                for(int fd = 0; fd < filter_depth/24 * 24; fd+=24) {
+                                for(int fd = 0; fd < filter_depth/28 * 28; fd+=28) {
                                     filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd);
                                     temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd);
                                     temp = _mm256_mul_pd(filter_temp, temp);
