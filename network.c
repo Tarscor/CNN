@@ -89,6 +89,7 @@ void free_network(network_t *net) {
       for (int f = 0; f < net->l9->output_depth; f++) {
           free_volume(net->l9->filters[f]);
       }
+    }
       free(net->l9->filters);
       free_volume(net->l9->biases);
 
@@ -108,7 +109,6 @@ void free_network(network_t *net) {
       free(net->l10);
 
       free(net);
-    }
 }
 
 batch_t *make_batch(network_t *net, int size) {
