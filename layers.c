@@ -238,7 +238,7 @@ void relu_forward(relu_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
         double volume_get;
         double value;
-
+        #pragma omp parallel for
         for (int x = 0; x < in_width; x++) {
             for (int y = 0; y < in_height; y++) {
                 for (int d = 0; d < in_depth/4 * 4; d+=4) {
