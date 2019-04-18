@@ -389,7 +389,6 @@ fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, in
     l->output_height = 1;
 
     l->filters = (volume_t **) malloc(sizeof(volume_t *) * num_neurons);
-    // volume_t **l_filters = l->filters;
 
     for (int i = 0; i < num_neurons; i++) {
         l->filters[i] = make_volume(1, 1, l->num_inputs, 0.0);
@@ -405,17 +404,25 @@ fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, in
 // input's weights with each of the filters. Note that these filters are not
 // the same as the filters for the convolutional layer.
 void fc_forward(fc_layer_t *l, volume_t **inputs, volume_t **outputs, int start, int end) {
+    int l_output_depth = l->output_depth;
+    int l_num_inputs = l->num_inputs;
+    volume_t **l_filters = l->filters;
+    double *biases_weights = l->biases->weights;
+
     for (int j = start; j <= end; j++) {
         volume_t *in = inputs[j];
         volume_t *out = outputs[j];
+        double *in_weights = in->weights;
+        double *out_weights = out->weights;
 
-        for(int i = 0; i < l->output_depth;i++) {
+        for(int i = 0; i < l_output_depth;i++) {
             double dot = 0.0;
-            for(int d = 0; d < l->num_inputs; d++) {
-                dot += in->weights[d] * l->filters[i]->weights[d];
+            double *filter_weights = l_filters[i]->weights;
+            for(int d = 0; d < l_num_inputs; d++) {
+                dot += in_weights[d] * filter_weights[d];
             }
-            dot += l->biases->weights[i];
-            out->weights[i] = dot;
+            dot += biases_weights[i];
+            out_weights[i] = dot;
         }
     }
 }
