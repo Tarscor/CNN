@@ -119,6 +119,7 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                 for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
                     // Take sum of element-wise product
                     double result = 0.0;
+                    #pragma omp for reduction(+: result)
                     for(int fy = 0; fy < filter_height; fy++) {
                         int in_y = y + fy;
                         for(int fx = 0; fx < filter_width; fx++) {
@@ -128,7 +129,6 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                 __m256d filter_temp;
                                 __m256d temp;
                                 double A[4];
-                                #pragma omp for reduction(+: result)
                                 for(int fd = 0; fd < filter_depth/16 * 16; fd+=16) {
                                     filter_temp = _mm256_loadu_pd(filter_weights + ((filter_width * fy) + fx) * filter_depth + fd);
                                     temp = _mm256_loadu_pd(in_weights + ((in_width * in_y) + in_x) * in_depth + fd);
