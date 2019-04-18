@@ -390,6 +390,7 @@ fc_layer_t *make_fc_layer(int input_width, int input_height, int input_depth, in
 
     l->filters = (volume_t **) malloc(sizeof(volume_t *) * num_neurons);
     volume_t **l_filters = l->filters;
+    #pragma omp parallel for
     for (int i = 0; i < num_neurons; i++) {
         l_filters[i] = make_volume(1, 1, l->num_inputs, 0.0);
     }
