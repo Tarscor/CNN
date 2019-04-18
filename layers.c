@@ -103,29 +103,29 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
 
         double *weights = l->biases->weights;
 
-        for(int f = 0; f < out_depth; f++) {
-            volume_t *filter = l->filters[f];
+        #pragma omp parallel
+        {
+          for(int f = 0; f < out_depth; f++) {
+              volume_t *filter = l->filters[f];
 
-            int filter_height = filter->height;
-            int filter_width = filter->width;
-            int filter_depth = filter->depth;
-            double *filter_weights = filter->weights;
+              int filter_height = filter->height;
+              int filter_width = filter->width;
+              int filter_depth = filter->depth;
+              double *filter_weights = filter->weights;
 
-            int y = -l->pad;
-            double bias_weight = weights[f];
-            for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
-                int x = -l->pad;
-                for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
+              int y = -l->pad;
+              double bias_weight = weights[f];
+              for(int out_y = 0; out_y < out_height; y += stride, out_y++) {
+                  int x = -l->pad;
+                  for(int out_x = 0; out_x < out_width; x += stride, out_x++) {
 
-                    // Take sum of element-wise product
-                    double result = 0.0;
-                    for(int fy = 0; fy < filter_height; fy++) {
-                        int in_y = y + fy;
-                        for(int fx = 0; fx < filter_width; fx++) {
-                            int in_x = x + fx;
-                            if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
-                                #pragma omp parallel
-                                {
+                      // Take sum of element-wise product
+                      double result = 0.0;
+                      for(int fy = 0; fy < filter_height; fy++) {
+                          int in_y = y + fy;
+                          for(int fx = 0; fx < filter_width; fx++) {
+                              int in_x = x + fx;
+                              if(in_y >= 0 && in_y < in_height && in_x >=0 && in_x < in_width) {
                                   __m256d sum = _mm256_setzero_pd();
                                   __m256d filter_temp;
                                   __m256d temp;
@@ -159,14 +159,14 @@ void conv_forward(conv_layer_t *l, volume_t **inputs, volume_t **outputs, int st
                                   result += A[1];
                                   result += A[2];
                                   result += A[3];
-                                }
-                            }
-                        }
-                    }
-                    result += bias_weight;
-                    out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
-                }
-            }
+                              }
+                          }
+                      }
+                      result += bias_weight;
+                      out_weights[((out_width * out_y) + out_x) * out_depth + f] = result;
+                  }
+              }
+          }
         }
     }
 }
